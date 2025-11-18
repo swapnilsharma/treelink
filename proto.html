@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TV Friendly Travel Guide</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Roboto, sans-serif;
+        background: radial-gradient(circle at top, #1e3c72, #1a1a2e);
+        color: #f2f6ff;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      main {
+        width: min(90vw, 960px);
+        padding: 32px;
+        border-radius: 32px;
+        background: rgba(10, 15, 32, 0.8);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+      }
+
+      h1 {
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-weight: 700;
+        font-size: clamp(24px, 4vw, 36px);
+      }
+
+      p.instructions {
+        margin-top: 12px;
+        color: #a7b4cf;
+        font-size: clamp(14px, 2vw, 18px);
+      }
+
+      .view {
+        margin-top: 32px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      ul.list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .list.grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px 24px;
+      }
+
+      .list.grid .list-item {
+        height: 100%;
+      }
+
+      .list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px 28px;
+        border-radius: 18px;
+        font-size: clamp(18px, 3vw, 28px);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: border 0.2s, background 0.2s, transform 0.15s;
+      }
+
+      .list-item span.secondary {
+        font-size: clamp(16px, 2.5vw, 20px);
+        color: #9fb8ff;
+      }
+
+      .list-item.selected {
+        border-color: #5db1ff;
+        background: linear-gradient(135deg, rgba(93, 177, 255, 0.2), rgba(93, 177, 255, 0.05));
+        transform: scale(1.01);
+        box-shadow: 0 15px 40px rgba(93, 177, 255, 0.25);
+      }
+
+      .view-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      button.back {
+        border: none;
+        background: rgba(255, 255, 255, 0.12);
+        color: #f0f6ff;
+        font-size: 1rem;
+        padding: 10px 18px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      button.back:hover,
+      button.back:focus-visible {
+        background: rgba(255, 255, 255, 0.2);
+        outline: none;
+      }
+
+      @media (max-width: 640px) {
+        main {
+          padding: 22px;
+        }
+
+        .list-item {
+          padding: 18px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Explore from your sofa</h1>
+      <p class="instructions">
+        Use your remote's arrows to move, OK/Enter to select, and Back to return.
+      </p>
+
+      <section id="countries-view" class="view" aria-live="polite">
+        <ul id="country-list" class="list grid"></ul>
+      </section>
+
+      <section id="places-view" class="view hidden" aria-live="polite">
+        <div class="view-header">
+          <button id="back-button" class="back" type="button">&#8592; Back</button>
+          <h2 id="country-title"></h2>
+        </div>
+        <ul id="places-list" class="list"></ul>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        const countries = [
+          {
+            name: "Japan",
+            tagline: "Ancient temples & neon cities",
+            places: [
+              "Kyoto's Fushimi Inari Shrine",
+              "Tokyo's Shibuya Crossing",
+              "Arashiyama Bamboo Forest",
+              "Mount Fuji views",
+            ],
+          },
+          {
+            name: "Italy",
+            tagline: "Art, cuisine & coastlines",
+            places: [
+              "Venice Grand Canal",
+              "Florence Uffizi Gallery",
+              "Rome's Colosseum",
+              "Amalfi Coast drive",
+            ],
+          },
+          {
+            name: "Canada",
+            tagline: "Wild nature & vibrant cities",
+            places: [
+              "Banff National Park",
+              "Niagara Falls",
+              "Old Québec City",
+              "Vancouver Seawall",
+            ],
+          },
+          {
+            name: "Australia",
+            tagline: "Surf, reefs & red deserts",
+            places: [
+              "Great Barrier Reef",
+              "Sydney Harbour",
+              "Uluru at sunset",
+              "Great Ocean Road",
+            ],
+          },
+          {
+            name: "Spain",
+            tagline: "Festivals, beaches & tapas",
+            places: [
+              "Barcelona's Sagrada Família",
+              "Madrid's Prado Museum",
+              "Seville flamenco nights",
+              "Mallorca coves",
+            ],
+          },
+          {
+            name: "United States",
+            tagline: "Road trips & big cities",
+            places: [
+              "New York skyline",
+              "Grand Canyon overlooks",
+              "Yellowstone geysers",
+              "Hawaii's North Shore",
+            ],
+          },
+          {
+            name: "Brazil",
+            tagline: "Rainforests & samba energy",
+            places: [
+              "Rio's Christ the Redeemer",
+              "Iguazu Falls",
+              "Amazon River cruise",
+              "Salvador Pelourinho",
+            ],
+          },
+          {
+            name: "India",
+            tagline: "Spices, colors & contrasts",
+            places: [
+              "Taj Mahal sunrise",
+              "Jaipur's Pink City",
+              "Kerala backwaters",
+              "Himalayan monasteries",
+            ],
+          },
+          {
+            name: "South Africa",
+            tagline: "Safaris & seaside cliffs",
+            places: [
+              "Kruger wildlife drives",
+              "Table Mountain cableway",
+              "Cape Winelands",
+              "Garden Route road trip",
+            ],
+          },
+          {
+            name: "France",
+            tagline: "Cafés, art & chateaus",
+            places: [
+              "Paris sunset on the Seine",
+              "Mont Saint-Michel",
+              "Loire Valley castles",
+              "Nice Promenade des Anglais",
+            ],
+          },
+          {
+            name: "Thailand",
+            tagline: "Street food & tropical isles",
+            places: [
+              "Bangkok night markets",
+              "Chiang Mai temples",
+              "Phi Phi snorkeling",
+              "Railay Beach cliffs",
+            ],
+          },
+          {
+            name: "Egypt",
+            tagline: "Ancient wonders & Nile cruises",
+            places: [
+              "Great Pyramids of Giza",
+              "Luxor's Valley of the Kings",
+              "Aswan felucca ride",
+              "Abu Simbel sunrise",
+            ],
+          },
+          {
+            name: "New Zealand",
+            tagline: "Mountains, fjords & filmscapes",
+            places: [
+              "Milford Sound cruise",
+              "Rotorua geothermal parks",
+              "Hobbiton movie set",
+              "Queenstown adventures",
+            ],
+          },
+          {
+            name: "Peru",
+            tagline: "Andes peaks & Incan history",
+            places: [
+              "Machu Picchu trek",
+              "Cusco's Plaza de Armas",
+              "Sacred Valley villages",
+              "Rainbow Mountain",
+            ],
+          },
+          {
+            name: "Iceland",
+            tagline: "Glaciers, geysers & auroras",
+            places: [
+              "Golden Circle loop",
+              "Blue Lagoon soak",
+              "South Coast waterfalls",
+              "Reykjavík harbor",
+            ],
+          },
+          {
+            name: "Greece",
+            tagline: "Mythic ruins & island sunsets",
+            places: [
+              "Santorini caldera views",
+              "Athens Acropolis",
+              "Meteora monasteries",
+              "Crete's Samaria Gorge",
+            ],
+          },
+        ];
+
+        const COUNTRY_COLUMNS = 2;
+
+        const state = {
+          view: "countries",
+          selectedCountry: 0,
+          selectedPlace: 0,
+        };
+
+        const baseUrl = window.location.pathname + window.location.search;
+        const countriesView = document.getElementById("countries-view");
+        const countryListEl = document.getElementById("country-list");
+        const placesView = document.getElementById("places-view");
+        const countryTitleEl = document.getElementById("country-title");
+        const placesListEl = document.getElementById("places-list");
+        const backButton = document.getElementById("back-button");
+
+        document.body.setAttribute("tabindex", "-1");
+        document.body.focus();
+
+        function renderCountries() {
+          countryListEl.innerHTML = "";
+          countries.forEach((country, index) => {
+            const item = document.createElement("li");
+            item.className = "list-item" + (index === state.selectedCountry ? " selected" : "");
+            item.dataset.index = index;
+            item.innerHTML = `
+              <span>${country.name}</span>
+              <span class="secondary">${country.tagline}</span>
+            `;
+            item.addEventListener("click", () => openCountry(index));
+            countryListEl.appendChild(item);
+          });
+        }
+
+        function renderPlaces() {
+          const country = countries[state.selectedCountry];
+          countryTitleEl.textContent = `${country.name} highlights`;
+          placesListEl.innerHTML = "";
+          country.places.forEach((place, index) => {
+            const item = document.createElement("li");
+            item.className = "list-item" + (index === state.selectedPlace ? " selected" : "");
+            item.textContent = place;
+            placesListEl.appendChild(item);
+          });
+        }
+
+        function moveCountrySelection(delta) {
+          const total = countries.length;
+          state.selectedCountry = (state.selectedCountry + delta + total) % total;
+          renderCountries();
+        }
+
+        function showCountries(fromPopState = false) {
+          state.view = "countries";
+          countriesView.classList.remove("hidden");
+          placesView.classList.add("hidden");
+          state.selectedPlace = 0;
+          renderCountries();
+          if (!fromPopState) {
+            try {
+              window.history.replaceState({ view: "countries" }, "", baseUrl);
+            } catch (err) {
+              // Fallback: ignore history issues
+            }
+          }
+        }
+
+        function openCountry(index, fromPopState = false) {
+          state.selectedCountry = index;
+          state.selectedPlace = 0;
+          state.view = "places";
+          countriesView.classList.add("hidden");
+          placesView.classList.remove("hidden");
+          renderPlaces();
+          if (!fromPopState) {
+            try {
+              window.history.pushState({ view: "places", index }, "", baseUrl);
+            } catch (err) {
+              // ignore history issues
+            }
+          }
+        }
+
+        function requestGoBack() {
+          if (state.view === "countries") {
+            return;
+          }
+          if (window.history.state && window.history.state.view === "places") {
+            window.history.back();
+          } else {
+            showCountries(true);
+          }
+        }
+
+        function handleKeyDown(event) {
+          const { key } = event;
+          const selectKeys = ["Enter", "Accept", "OK"];
+          const backKeys = ["Backspace", "Escape", "BrowserBack", "GoBack", "Back"];
+
+          if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", ...selectKeys, ...backKeys].includes(key)) {
+            event.preventDefault();
+          }
+
+          if (state.view === "countries") {
+            if (key === "ArrowDown") {
+              moveCountrySelection(COUNTRY_COLUMNS);
+            } else if (key === "ArrowUp") {
+              moveCountrySelection(-COUNTRY_COLUMNS);
+            } else if (key === "ArrowRight") {
+              moveCountrySelection(1);
+            } else if (key === "ArrowLeft") {
+              moveCountrySelection(-1);
+            } else if (selectKeys.includes(key)) {
+              openCountry(state.selectedCountry);
+            }
+          } else if (state.view === "places") {
+            const placeCount = countries[state.selectedCountry].places.length;
+            if (key === "ArrowDown") {
+              state.selectedPlace = (state.selectedPlace + 1) % placeCount;
+              renderPlaces();
+            } else if (key === "ArrowUp") {
+              state.selectedPlace =
+                (state.selectedPlace - 1 + placeCount) % placeCount;
+              renderPlaces();
+            } else if (key === "ArrowLeft") {
+              requestGoBack();
+            } else if (backKeys.includes(key)) {
+              requestGoBack();
+            }
+          }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+        backButton.addEventListener("click", () => requestGoBack());
+
+        window.addEventListener("popstate", (event) => {
+          if (event.state && event.state.view === "places") {
+            const index = typeof event.state.index === "number" ? event.state.index : 0;
+            openCountry(index, true);
+          } else {
+            showCountries(true);
+          }
+        });
+
+        showCountries();
+      })();
+    </script>
+  </body>
+</html>
