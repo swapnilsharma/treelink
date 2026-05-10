@@ -238,45 +238,70 @@
       height: 220px;
     }
 
-    /* Stone animation */
+    /* Stone + impact */
     .stone {
       position: absolute;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #6c6f76, #2a2c30);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+      width: 20px;
+      height: 18px;
+      border-radius: 48% 52% 42% 58% / 60% 45% 55% 40%;
+      background:
+        radial-gradient(circle at 30% 25%, #b1b6bf, #4a4d54 55%, #1c1e22);
+      box-shadow:
+        inset -3px -4px 6px rgba(0, 0, 0, 0.55),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.18),
+        0 4px 10px rgba(0, 0, 0, 0.7);
       pointer-events: none;
       will-change: transform, opacity;
     }
 
     @keyframes throw {
       0%   { transform: translate(0, 0) rotate(0); opacity: 1; }
-      80%  { opacity: 1; }
-      100% { transform: translate(var(--tx), var(--ty)) rotate(720deg); opacity: 0; }
+      85%  { opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) rotate(900deg); opacity: 0; }
     }
 
     @keyframes wobble {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-6px); }
-      75% { transform: translateX(6px); }
+      0%, 100% { transform: translate(0, 0) rotate(0); }
+      12% { transform: translate(-9px, 3px) rotate(-1.6deg); }
+      28% { transform: translate(8px, -2px) rotate(1.4deg); }
+      46% { transform: translate(-6px, 2px) rotate(-1deg); }
+      66% { transform: translate(5px, -1px) rotate(0.7deg); }
+      84% { transform: translate(-2px, 1px) rotate(-0.3deg); }
     }
 
-    .figure-panel.hit { animation: wobble 0.45s ease; }
+    .figure-panel.hit, .gallows-wrap.hit { animation: wobble 0.55s ease; }
 
     @keyframes splat {
-      0% { transform: scale(0.2); opacity: 1; }
-      100% { transform: scale(1.6); opacity: 0; }
+      0%   { transform: scale(0.15); opacity: 1; }
+      45%  { transform: scale(1.4); opacity: 0.95; }
+      100% { transform: scale(2.1); opacity: 0; }
     }
 
     .splat {
       position: absolute;
-      width: 30px;
-      height: 30px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 107, 107, 0.7), rgba(255, 107, 107, 0));
+      background:
+        radial-gradient(circle, rgba(255, 200, 90, 0.85) 0%, rgba(255, 107, 107, 0.55) 40%, rgba(255, 107, 107, 0) 72%);
       pointer-events: none;
-      animation: splat 0.6s ease forwards;
+      animation: splat 0.5s ease-out forwards;
+    }
+
+    @keyframes dustPuff {
+      0%   { transform: scale(0.3); opacity: 0.8; }
+      100% { transform: scale(2.6); opacity: 0; }
+    }
+
+    .dust {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(190, 180, 160, 0.55), rgba(190, 180, 160, 0) 70%);
+      pointer-events: none;
+      animation: dustPuff 0.6s ease-out forwards;
+      filter: blur(1px);
     }
 
     /* Pass screen — trophy + confetti */
@@ -437,8 +462,8 @@
           <span class="label">Target</span>
           <svg class="figure-svg" viewBox="0 0 120 220" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <pattern id="facePat" patternUnits="objectBoundingBox" width="1" height="1">
-                <image id="faceImage" href="" width="44" height="44" x="0" y="0" preserveAspectRatio="xMidYMid slice" />
+              <pattern id="facePat" patternUnits="objectBoundingBox" patternContentUnits="objectBoundingBox" width="1" height="1">
+                <image id="faceImage" href="" width="1" height="1" x="0" y="0" preserveAspectRatio="xMidYMid slice" />
               </pattern>
             </defs>
             <!-- body -->
@@ -491,22 +516,22 @@
       <div class="gallows-wrap" id="gallows-wrap">
         <svg class="gallows-svg" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <pattern id="facePatBig" patternUnits="objectBoundingBox" width="1" height="1">
-              <image id="faceImageBig" href="" width="60" height="60" x="0" y="0" preserveAspectRatio="xMidYMid slice"/>
+            <pattern id="facePatBig" patternUnits="objectBoundingBox" patternContentUnits="objectBoundingBox" width="1" height="1">
+              <image id="faceImageBig" href="" width="1" height="1" x="0" y="0" preserveAspectRatio="xMidYMid slice"/>
             </pattern>
           </defs>
           <!-- gallows -->
           <line x1="20" y1="220" x2="220" y2="220" stroke="#7a5a36" stroke-width="6"/>
           <line x1="50" y1="220" x2="50" y2="20" stroke="#7a5a36" stroke-width="8"/>
           <line x1="50" y1="20" x2="160" y2="20" stroke="#7a5a36" stroke-width="8"/>
-          <line x1="160" y1="20" x2="160" y2="50" stroke="#3a2a1a" stroke-width="3"/>
-          <!-- stick figure -->
-          <line x1="160" y1="80" x2="160" y2="150" stroke="#cfd5e3" stroke-width="3" stroke-linecap="round"/>
-          <line x1="160" y1="95" x2="135" y2="125" stroke="#cfd5e3" stroke-width="3" stroke-linecap="round"/>
-          <line x1="160" y1="95" x2="185" y2="125" stroke="#cfd5e3" stroke-width="3" stroke-linecap="round"/>
-          <line x1="160" y1="150" x2="140" y2="195" stroke="#cfd5e3" stroke-width="3" stroke-linecap="round"/>
-          <line x1="160" y1="150" x2="180" y2="195" stroke="#cfd5e3" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="160" cy="65" r="18" fill="url(#facePatBig)" stroke="#cfd5e3" stroke-width="2"/>
+          <line x1="160" y1="20" x2="160" y2="42" stroke="#3a2a1a" stroke-width="3"/>
+          <!-- stick figure (smaller body, bigger head) -->
+          <line x1="160" y1="98" x2="160" y2="150" stroke="#cfd5e3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="160" y1="110" x2="138" y2="138" stroke="#cfd5e3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="160" y1="110" x2="182" y2="138" stroke="#cfd5e3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="160" y1="150" x2="143" y2="192" stroke="#cfd5e3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="160" y1="150" x2="177" y2="192" stroke="#cfd5e3" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="160" cy="70" r="28" fill="url(#facePatBig)" stroke="#cfd5e3" stroke-width="2"/>
         </svg>
       </div>
       <p class="score-big fail" id="fail-score">1 / 5</p>
@@ -735,31 +760,55 @@
       const rect = container.getBoundingClientRect();
       const stone = document.createElement("div");
       stone.className = "stone";
-      // start from a random offscreen edge of the panel
-      const fromLeft = Math.random() < 0.5;
-      const startX = fromLeft ? -20 : rect.width + 20;
-      const startY = 30 + Math.random() * (rect.height - 80);
+      const margin = 30;
+      // start from a random edge: 0 top, 1 right, 2 bottom, 3 left
+      const edge = Math.floor(Math.random() * 4);
+      let startX, startY;
+      if (edge === 0) {
+        startX = Math.random() * rect.width;
+        startY = -margin;
+      } else if (edge === 1) {
+        startX = rect.width + margin;
+        startY = Math.random() * rect.height * 0.75;
+      } else if (edge === 2) {
+        startX = Math.random() * rect.width;
+        startY = rect.height + margin;
+      } else {
+        startX = -margin;
+        startY = Math.random() * rect.height * 0.75;
+      }
       stone.style.left = startX + "px";
       stone.style.top = startY + "px";
-      // target = head position of the figure (~ top-center of the panel)
-      const targetX = rect.width / 2 + (Math.random() * 30 - 15);
-      const targetY = (opts.targetY ?? 60) + Math.random() * 20;
+
+      const targetYRatio = opts.targetYRatio ?? 0.3;
+      const targetX = rect.width / 2 + (Math.random() * 26 - 13);
+      const targetY = rect.height * targetYRatio + (Math.random() * 14 - 7);
       stone.style.setProperty("--tx", (targetX - startX) + "px");
       stone.style.setProperty("--ty", (targetY - startY) + "px");
-      stone.style.animation = `throw ${opts.duration ?? 600}ms cubic-bezier(.4,.1,.7,1) forwards`;
+      const dur = opts.duration ?? 580;
+      stone.style.animation = `throw ${dur}ms cubic-bezier(.35,.05,.7,1) forwards`;
       container.appendChild(stone);
+
       setTimeout(() => {
-        // splat
         const splat = document.createElement("div");
         splat.className = "splat";
-        splat.style.left = (targetX - 15) + "px";
-        splat.style.top = (targetY - 15) + "px";
+        splat.style.left = (targetX - 28) + "px";
+        splat.style.top = (targetY - 28) + "px";
         container.appendChild(splat);
+
+        const dust = document.createElement("div");
+        dust.className = "dust";
+        dust.style.left = (targetX - 30) + "px";
+        dust.style.top = (targetY - 30) + "px";
+        container.appendChild(dust);
+
         container.classList.add("hit");
-        setTimeout(() => container.classList.remove("hit"), 500);
-        setTimeout(() => splat.remove(), 700);
-      }, (opts.duration ?? 600) - 30);
-      setTimeout(() => stone.remove(), (opts.duration ?? 600) + 50);
+        setTimeout(() => container.classList.remove("hit"), 580);
+        setTimeout(() => splat.remove(), 600);
+        setTimeout(() => dust.remove(), 700);
+      }, dur - 30);
+
+      setTimeout(() => stone.remove(), dur + 50);
     }
 
     // ---------- Finale ----------
@@ -799,13 +848,13 @@
 
     function rainStones() {
       const wrap = document.getElementById("gallows-wrap");
-      // wrap needs to be the throw container; use it directly
       let n = 0;
-      const interval = setInterval(() => {
-        throwStone(wrap, { targetY: 70, duration: 550 });
+      const fire = () => {
+        throwStone(wrap, { duration: 520 + Math.random() * 180 });
         n++;
-        if (n >= 14) clearInterval(interval);
-      }, 220);
+        if (n < 14) setTimeout(fire, 180 + Math.random() * 220);
+      };
+      fire();
     }
 
     document.getElementById("btn-replay-pass").addEventListener("click", reset);
@@ -814,7 +863,7 @@
     function reset() {
       // wipe confetti / stones
       screens.pass.querySelectorAll(".confetti").forEach(n => n.remove());
-      screens.fail.querySelectorAll(".stone, .splat").forEach(n => n.remove());
+      screens.fail.querySelectorAll(".stone, .splat, .dust").forEach(n => n.remove());
       show("intro");
     }
   </script>
