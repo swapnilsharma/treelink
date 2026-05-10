@@ -157,6 +157,12 @@
     @media (max-width: 720px) {
       .quiz-grid { grid-template-columns: 1fr; }
       .figure-panel { order: -1; }
+      .card { padding: 1.25rem; border-radius: 14px; }
+      h2 { font-size: 1.4rem; }
+      .q-text { font-size: 1.1rem; }
+      .figure-svg { height: 170px; }
+      body { padding: 2vh 3vw; }
+      .header h1 { font-size: 0.85rem; letter-spacing: 0.2em; }
     }
 
     .question-panel { display: flex; flex-direction: column; }
@@ -283,8 +289,8 @@
 
     .trophy-wrap {
       position: relative;
-      width: 280px;
-      height: 320px;
+      width: min(280px, 70vw);
+      aspect-ratio: 280 / 320;
       margin: 1rem auto 1.5rem;
     }
 
@@ -292,11 +298,11 @@
 
     .trophy-face {
       position: absolute;
-      top: 60px;
+      top: 19%;
       left: 50%;
       transform: translateX(-50%);
-      width: 110px;
-      height: 110px;
+      width: 39%;
+      aspect-ratio: 1;
       border-radius: 50%;
       object-fit: cover;
       border: 4px solid #ffd66b;
@@ -319,8 +325,8 @@
     /* Fail screen — gallows */
     .gallows-wrap {
       position: relative;
-      width: 360px;
-      height: 360px;
+      width: min(360px, 80vw);
+      aspect-ratio: 1;
       margin: 1rem auto;
     }
 
@@ -646,7 +652,6 @@
       if (!video.videoWidth) return;
       selfieDataUrl = snapToCircle(video, video.videoWidth, video.videoHeight);
       preview.src = selfieDataUrl;
-      preview.style.transform = "scaleX(-1)"; // already mirrored in canvas; un-mirror display
       preview.style.transform = "none";
       stopCamera();
       show("confirm");
