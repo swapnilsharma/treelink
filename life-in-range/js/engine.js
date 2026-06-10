@@ -1,5 +1,5 @@
 // ============================================================
-// GlucoQuest — metabolic simulation engine
+// Life in Range — metabolic simulation engine
 //
 // Simplified but honest model, stepped in 1-minute ticks:
 //   BG rises with carb absorption (curve depends on glycemic profile)

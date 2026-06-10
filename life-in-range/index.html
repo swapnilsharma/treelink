@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0b0d" />
+  <title>Life in Range</title>
+  <meta name="description" content="A simulation of adult life with type 1 diabetes: carb counting, insulin dosing, CGM data, and the decisions in between." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&display=swap" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ============ TITLE ============ -->
+  <section id="screen-title" class="screen active">
+    <div class="title-bg" aria-hidden="true"><canvas id="title-canvas"></canvas></div>
+    <div class="title-inner">
+      <div class="wordmark">
+        <span class="wm-line">LIFE</span>
+        <span class="wm-band"><i></i><span class="wm-line wm-em">IN RANGE</span><i></i></span>
+      </div>
+      <p class="tagline">Seven days as a working adult with type&nbsp;1 diabetes.<br/>Every meal is a calculation. Every night is a number.</p>
+      <div class="title-buttons">
+        <button id="btn-new-game" class="btn btn-primary btn-big">Begin</button>
+        <button id="btn-continue" class="btn btn-quiet btn-big hidden">Continue</button>
+        <button id="btn-about" class="btn btn-quiet">About type 1 diabetes</button>
+      </div>
+      <p class="disclaimer">An educational simulation with simplified physiology. Not medical advice.</p>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="screen-about" class="screen">
+    <div class="panel scroll-panel">
+      <p class="eyebrow">BACKGROUND</p>
+      <h2>Type 1 diabetes</h2>
+      <div id="about-content"></div>
+      <button class="btn btn-quiet" data-nav="title">Back</button>
+    </div>
+  </section>
+
+  <!-- ============ CHARACTER ============ -->
+  <section id="screen-create" class="screen">
+    <div class="panel scroll-panel create-panel">
+      <p class="eyebrow">PROFILE</p>
+      <h2>Your week. Their life.</h2>
+      <p class="muted">You'll play an adult professional who manages type&nbsp;1 diabetes alongside everything else.</p>
+
+      <div class="create-layout">
+        <div class="avatar-preview">
+          <div id="create-avatar" class="avatar-box"></div>
+          <div id="create-summary" class="avatar-summary"></div>
+          <button id="btn-default-char" class="btn btn-quiet wide">Generate a character</button>
+        </div>
+
+        <div class="create-form">
+          <label class="field">
+            <span>Name</span>
+            <input id="inp-name" type="text" maxlength="18" placeholder="Name" autocomplete="off"/>
+          </label>
+
+          <label class="field">
+            <span>Age <b id="age-val">34</b></span>
+            <input id="inp-age" type="range" min="21" max="64" value="34"/>
+          </label>
+
+          <div class="field"><span>Profession</span><div id="opt-profession" class="chip-row"></div></div>
+          <div class="field"><span>Skin</span><div id="opt-skin" class="chip-row swatches"></div></div>
+          <div class="field"><span>Hair</span><div id="opt-hair" class="chip-row"></div></div>
+          <div class="field">
+            <span>Insulin therapy</span>
+            <div id="opt-therapy" class="chip-row"></div>
+            <p id="therapy-note" class="hint"></p>
+          </div>
+          <div class="field"><span>Units</span><div id="opt-units" class="chip-row"></div></div>
+          <div class="field"><span>Length</span><div id="opt-days" class="chip-row"></div></div>
+        </div>
+      </div>
+
+      <div class="row-end">
+        <button class="btn btn-quiet" data-nav="title">Back</button>
+        <button id="btn-begin" class="btn btn-primary btn-big">Start Monday</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="screen-game" class="screen">
+    <header class="hud">
+      <div class="hud-left">
+        <div id="hud-day" class="hud-day">MON · DAY 1</div>
+        <div id="hud-clock" class="hud-clock">07:00</div>
+      </div>
+      <button id="cgm-pill" class="cgm-pill" title="Open trends">
+        <span id="cgm-value">--</span>
+        <span class="cgm-side"><span id="cgm-arrow" class="cgm-arrow">→</span><span id="cgm-unit" class="cgm-unit">mg/dL</span></span>
+      </button>
+      <div class="hud-right">
+        <div class="stat-mini" title="Energy"><div class="bar"><div id="bar-energy" class="fill"></div></div></div>
+        <div class="stat-mini" title="Insulin on board"><b id="hud-iob">0.0u</b></div>
+        <button id="btn-speed" class="btn-icon" title="Speed">
+          <svg viewBox="0 0 16 16" width="14" height="14"><path d="M2 2.5v11l6-5.5zM8.5 2.5v11l6-5.5z" fill="currentColor"/></svg>
+        </button>
+        <button id="btn-pause" class="btn-icon" title="Pause">
+          <svg viewBox="0 0 16 16" width="14" height="14"><path d="M3.5 2h3v12h-3zM9.5 2h3v12h-3z" fill="currentColor"/></svg>
+        </button>
+        <button id="btn-menu" class="btn-icon" title="Menu">
+          <svg viewBox="0 0 16 16" width="14" height="14"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div id="cgm-strip" class="cgm-strip"><canvas id="cgm-mini"></canvas></div>
+
+    <nav class="view-tabs">
+      <button class="vtab active" data-view="world">Day</button>
+      <button class="vtab" data-view="body">Body</button>
+      <button class="vtab" data-view="trends">Data</button>
+    </nav>
+
+    <main class="stage">
+      <div id="view-world" class="view active">
+        <div id="scene" class="scene">
+          <div id="scene-art" class="scene-art"></div>
+          <div id="scene-avatar" class="scene-avatar"></div>
+          <div id="symptom-overlay" class="symptom-overlay"></div>
+          <div class="scene-meta">
+            <div id="scene-location" class="scene-location"></div>
+            <div id="symptom-chip" class="symptom-chip hidden"></div>
+          </div>
+          <div id="scene-caption" class="scene-caption"></div>
+        </div>
+        <div id="action-bar" class="action-bar"></div>
+      </div>
+
+      <div id="view-body" class="view">
+        <div class="body-wrap">
+          <canvas id="body-canvas"></canvas>
+          <div id="body-labels"></div>
+          <div id="body-caption" class="body-caption"></div>
+        </div>
+      </div>
+
+      <div id="view-trends" class="view">
+        <div class="trends-wrap">
+          <canvas id="trend-canvas"></canvas>
+          <div id="trend-stats" class="trend-stats"></div>
+        </div>
+      </div>
+    </main>
+
+    <div id="alert-banner" class="alert-banner hidden"></div>
+    <div id="toast-zone" class="toast-zone"></div>
+    <div id="modal-zone"></div>
+  </section>
+
+  <!-- ============ SUMMARY / END ============ -->
+  <section id="screen-summary" class="screen"><div class="panel scroll-panel" id="summary-panel"></div></section>
+  <section id="screen-end" class="screen"><div class="panel scroll-panel" id="end-panel"></div></section>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
