@@ -38,6 +38,16 @@ export const ICONS = {
   cookie: wrap(`<circle cx="12" cy="12" r="8.5"/><circle cx="9.5" cy="10" r="1"/><circle cx="14.5" cy="9.5" r="1"/><circle cx="13.5" cy="14.5" r="1"/><circle cx="9" cy="14.8" r="1"/>`),
   nosnack: wrap(`<circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/>`),
   cake: wrap(`<path d="M5 12h14v8H5z"/><path d="M5 15.5c1.5 1.4 3-1.4 4.5 0s3-1.4 4.5 0 3-1.4 4.5 0"/><path d="M12 12V9.5"/><path d="M12 7.5c-.8-.8-.4-2 0-2.5.4.5.8 1.7 0 2.5Z"/>`),
+  // ---- Indian dishes ----
+  dosa: wrap(`<path d="M3 16h18a6 6 0 0 1-4 3H7a6 6 0 0 1-4-3Z"/><path d="M6 16 16 5a3.2 3.2 0 0 1 3 3L13 16"/>`),
+  idli: wrap(`<ellipse cx="8.5" cy="10" rx="4.5" ry="2.6"/><ellipse cx="15.5" cy="13" rx="4.5" ry="2.6"/><path d="M3 18h18a7 7 0 0 1-3 3H6a7 7 0 0 1-3-3Z"/>`),
+  paratha: wrap(`<circle cx="12" cy="12" r="8.5"/><path d="M8 9.5c1.4 1 2.6 1 4 0s2.6-1 4 0M8 14.5c1.4 1 2.6 1 4 0s2.6-1 4 0"/>`),
+  chole: wrap(`<circle cx="9" cy="9" r="6"/><path d="M4 17h16a7 7 0 0 1-4.5 4h-7A7 7 0 0 1 4 17Z"/><circle cx="16.5" cy="13" r="0.8"/><circle cx="18.5" cy="14.8" r="0.8"/>`),
+  thali: wrap(`<circle cx="12" cy="12" r="9"/><circle cx="9" cy="9.5" r="2.4"/><circle cx="15.5" cy="9.5" r="2.4"/><path d="M8 16c2.5 1.4 5.5 1.4 8 0"/>`),
+  biryani: wrap(`<path d="M4 12h16a8 8 0 0 1-5 7.4V20H9v-.6A8 8 0 0 1 4 12Z"/><path d="M8 9.5c0-1 .8-1.4.8-2.5M12 9.5c0-1 .8-1.4.8-2.5M16 9.5c0-1 .8-1.4.8-2.5"/><path d="M7.5 15h2M11 16.5h2M14.5 15h2"/>`),
+  paneer: wrap(`<path d="M3 14c0-5 4-8 8-8 5 0 10 2.5 10 8 0 3-2 5-5 5H8c-3 0-5-2-5-5Z"/><rect x="8" y="11" width="3.4" height="3.4" rx="0.6"/><rect x="13.5" y="12" width="3.4" height="3.4" rx="0.6"/>`),
+  samosa: wrap(`<path d="M12 3 21 19H3L12 3Z"/><path d="M9 13c1.8 1.2 4.2 1.2 6 0"/>`),
+  chai: wrap(`<path d="M5 9h11v7a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V9Z"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16M8 6c0-1 .8-1.2.8-2.4M11.5 6c0-1 .8-1.2.8-2.4"/>`),
   // ---- treats ----
   juice: wrap(`<path d="M7 8h10v11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8Z"/><path d="M7 8l1-3h8l1 3M13.5 5l1.8-3"/>`),
   tabs: wrap(`<rect x="4" y="9" width="9" height="6" rx="3"/><path d="M8.5 9v6"/><rect x="13" y="13" width="7" height="5" rx="2.5"/>`),

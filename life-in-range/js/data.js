@@ -36,47 +36,78 @@ export const DEFAULT_CHARACTERS = [
 ];
 
 // ------------------------------------------------------------
+// DIFFICULTY
+//   assist: "full" → dose suggested · "ratios" → your settings, you
+//   do the math · "none" → nothing
+//   revealCarbs: every food arrives carb-counted
+//   macros: full nutrition facts shown (carbs/fat/protein)
+//   adverse: multiplier on site failures / missed basal
+// ------------------------------------------------------------
+export const DIFFICULTIES = [
+  { id: "easy",     label: "Easy",   name: "Honeymoon", assist: "full", revealCarbs: true,  macros: false, adverse: 0,    stress: 0.5,
+    note: "Every meal arrives carb-counted, the dose calculator is on, and the hardware behaves. (The honeymoon phase never lasts.)" },
+  { id: "medium",   label: "Medium", name: "Routine",   assist: "full", revealCarbs: false, macros: false, adverse: 1,    stress: 1,
+    note: "Labels on packaged food only — restaurant carbs are your estimate. The calculator still suggests doses." },
+  { id: "hard",     label: "Hard",   name: "Real Life", assist: "ratios", revealCarbs: false, macros: false, adverse: 1.35, stress: 1,
+    note: "No suggested doses. You get your ratios and do the arithmetic yourself — while more things go wrong." },
+  { id: "pancreas", label: "Pancreas Mode", name: "Pancreas Mode", assist: "none", revealCarbs: false, macros: true, adverse: 1.5, stress: 1.2,
+    note: "You are the pancreas now. Full nutrition facts, zero guidance — no suggestions, no formulas, no net." },
+];
+
+// ------------------------------------------------------------
 // FOOD — carbs in grams. gi: fast | med | slow (slow = high fat,
 // delayed absorption). labeled → carbs printed; otherwise the
 // player estimates.
 // ------------------------------------------------------------
 export const FOODS = {
   breakfast: [
-    { id: "oatmeal",  name: "Oatmeal with berries",      carbs: 42, gi: "med",  labeled: false, desc: "Steel-cut oats, blueberries, honey" },
-    { id: "bagel",    name: "Bagel & cream cheese",      carbs: 62, gi: "fast", labeled: true,  desc: "From the bakery downstairs" },
-    { id: "eggs",     name: "Eggs & avocado toast",      carbs: 26, gi: "med",  labeled: false, desc: "Two eggs, seeded toast" },
-    { id: "yogurt",   name: "Greek yogurt & granola",    carbs: 34, gi: "med",  labeled: true,  desc: "Carbs on the label" },
-    { id: "pancakes", name: "Pancakes & syrup",          carbs: 78, gi: "fast", labeled: false, desc: "Syrup is nearly pure sugar" },
-    { id: "skipbf",   name: "Just black coffee",         carbs: 2,  gi: "fast", labeled: true,  desc: "Skipping breakfast" },
+    { id: "oatmeal",  name: "Oatmeal with berries",      carbs: 42, fat: 6,  protein: 8,  gi: "med",  labeled: false, desc: "Steel-cut oats, blueberries, honey" },
+    { id: "poha",     name: "Poha",                      carbs: 45, fat: 9,  protein: 6,  gi: "med",  labeled: false, desc: "Flattened rice, peanuts, lemon", icon: "oatmeal" },
+    { id: "dosa",     name: "Masala dosa",               carbs: 58, fat: 14, protein: 9,  gi: "med",  labeled: false, desc: "Crisp crepe, potato masala, chutney" },
+    { id: "idli",     name: "Idli sambar",               carbs: 40, fat: 5,  protein: 10, gi: "med",  labeled: false, desc: "Three idlis, sambar, chutney" },
+    { id: "paratha",  name: "Aloo paratha & curd",       carbs: 56, fat: 19, protein: 10, gi: "slow", labeled: false, desc: "Two, with butter — fat slows the rise" },
+    { id: "bagel",    name: "Bagel & cream cheese",      carbs: 62, fat: 11, protein: 12, gi: "fast", labeled: true,  desc: "From the bakery downstairs" },
+    { id: "eggs",     name: "Eggs & avocado toast",      carbs: 26, fat: 22, protein: 16, gi: "med",  labeled: false, desc: "Two eggs, seeded toast" },
+    { id: "yogurt",   name: "Greek yogurt & granola",    carbs: 34, fat: 8,  protein: 15, gi: "med",  labeled: true,  desc: "Carbs on the label" },
+    { id: "pancakes", name: "Pancakes & syrup",          carbs: 78, fat: 14, protein: 9,  gi: "fast", labeled: false, desc: "Syrup is nearly pure sugar" },
+    { id: "skipbf",   name: "Just black coffee",         carbs: 2,  fat: 0,  protein: 0,  gi: "fast", labeled: true,  desc: "Skipping breakfast" },
   ],
   lunch: [
-    { id: "salad",    name: "Chicken salad",             carbs: 18, gi: "med",  labeled: false, desc: "Greens, chicken, croutons" },
-    { id: "sandwich", name: "Turkey sandwich & apple",   carbs: 52, gi: "med",  labeled: false, desc: "Whole-grain, plus the apple" },
-    { id: "burrito",  name: "Burrito bowl",              carbs: 68, gi: "med",  labeled: false, desc: "Rice adds up fast" },
-    { id: "ramen",    name: "Ramen",                     carbs: 72, gi: "fast", labeled: false, desc: "Noodles from the place next door" },
-    { id: "sushi",    name: "Sushi set",                 carbs: 64, gi: "med",  labeled: false, desc: "Sticky rice hides carbs" },
-    { id: "soup",     name: "Lentil soup & roll",        carbs: 44, gi: "slow", labeled: false, desc: "Fiber slows the rise" },
+    { id: "salad",    name: "Chicken salad",             carbs: 18, fat: 14, protein: 28, gi: "med",  labeled: false, desc: "Greens, chicken, croutons" },
+    { id: "rajma",    name: "Rajma chawal",              carbs: 62, fat: 10, protein: 15, gi: "med",  labeled: false, desc: "Kidney-bean curry over rice", icon: "curry" },
+    { id: "chole",    name: "Chole bhature",             carbs: 78, fat: 26, protein: 14, gi: "slow", labeled: false, desc: "Fried bread — the famous food coma" },
+    { id: "thali",    name: "Dal-roti thali",            carbs: 48, fat: 9,  protein: 13, gi: "med",  labeled: false, desc: "Dal, two rotis, sabzi, salad" },
+    { id: "sandwich", name: "Turkey sandwich & apple",   carbs: 52, fat: 9,  protein: 22, gi: "med",  labeled: false, desc: "Whole-grain, plus the apple" },
+    { id: "burrito",  name: "Burrito bowl",              carbs: 68, fat: 16, protein: 30, gi: "med",  labeled: false, desc: "Rice adds up fast" },
+    { id: "ramen",    name: "Ramen",                     carbs: 72, fat: 12, protein: 18, gi: "fast", labeled: false, desc: "Noodles from the place next door" },
+    { id: "sushi",    name: "Sushi set",                 carbs: 64, fat: 6,  protein: 20, gi: "med",  labeled: false, desc: "Sticky rice hides carbs" },
+    { id: "soup",     name: "Lentil soup & roll",        carbs: 44, fat: 7,  protein: 14, gi: "slow", labeled: false, desc: "Fiber slows the rise" },
   ],
   dinner: [
-    { id: "pizza",    name: "Pizza, three slices",       carbs: 84, gi: "slow", labeled: false, desc: "Fat delays the spike for hours" },
-    { id: "pasta",    name: "Pasta bolognese",           carbs: 76, gi: "med",  labeled: false, desc: "Generous bowl, garlic bread" },
-    { id: "stirfry",  name: "Stir-fry & rice",           carbs: 58, gi: "med",  labeled: false, desc: "Lots of veg, a cup of rice" },
-    { id: "salmon",   name: "Salmon & potatoes",         carbs: 38, gi: "med",  labeled: false, desc: "Balanced plate" },
-    { id: "curry",    name: "Chickpea curry & naan",     carbs: 70, gi: "slow", labeled: false, desc: "Rich — slow, long absorption" },
-    { id: "tacos",    name: "Three tacos",               carbs: 48, gi: "med",  labeled: false, desc: "Corn tortillas, beans" },
+    { id: "pizza",    name: "Pizza, three slices",       carbs: 84, fat: 32, protein: 30, gi: "slow", labeled: false, desc: "Fat delays the spike for hours" },
+    { id: "biryani",  name: "Chicken biryani",           carbs: 66, fat: 18, protein: 28, gi: "slow", labeled: false, desc: "Layered rice — rich and deceptive" },
+    { id: "paneer",   name: "Paneer butter masala & naan", carbs: 64, fat: 30, protein: 22, gi: "slow", labeled: false, desc: "Cream and butter, slow for hours" },
+    { id: "khichdi",  name: "Khichdi & ghee",            carbs: 50, fat: 9,  protein: 12, gi: "med",  labeled: false, desc: "Comfort in a bowl", icon: "oatmeal" },
+    { id: "pasta",    name: "Pasta bolognese",           carbs: 76, fat: 18, protein: 24, gi: "med",  labeled: false, desc: "Generous bowl, garlic bread" },
+    { id: "stirfry",  name: "Stir-fry & rice",           carbs: 58, fat: 10, protein: 12, gi: "med",  labeled: false, desc: "Lots of veg, a cup of rice" },
+    { id: "salmon",   name: "Salmon & potatoes",         carbs: 38, fat: 20, protein: 34, gi: "med",  labeled: false, desc: "Balanced plate" },
+    { id: "curry",    name: "Chickpea curry & naan",     carbs: 70, fat: 22, protein: 16, gi: "slow", labeled: false, desc: "Rich — slow, long absorption" },
+    { id: "tacos",    name: "Three tacos",               carbs: 48, fat: 16, protein: 20, gi: "med",  labeled: false, desc: "Corn tortillas, beans" },
   ],
   snack: [
-    { id: "apple",    name: "Apple",                     carbs: 22, gi: "med",  labeled: false, desc: "Fruit sugar with fiber" },
-    { id: "bar",      name: "Protein bar",               carbs: 24, gi: "med",  labeled: true,  desc: "Label: 24 g" },
-    { id: "chips",    name: "Bag of chips",              carbs: 30, gi: "med",  labeled: true,  desc: "Label: 30 g" },
-    { id: "nuts",     name: "Handful of almonds",        carbs: 6,  gi: "slow", labeled: false, desc: "Barely moves glucose" },
-    { id: "cookie",   name: "Office cookies, two",       carbs: 36, gi: "fast", labeled: false, desc: "They were just sitting there" },
-    { id: "nosnack",  name: "Skip it",                   carbs: 0,  gi: "med",  labeled: true,  desc: "Not hungry" },
+    { id: "apple",    name: "Apple",                     carbs: 22, fat: 0,  protein: 0,  gi: "med",  labeled: false, desc: "Fruit sugar with fiber" },
+    { id: "samosa",   name: "Samosas, two",              carbs: 32, fat: 17, protein: 5,  gi: "slow", labeled: false, desc: "From the chai stall downstairs" },
+    { id: "chai",     name: "Chai & biscuits",           carbs: 28, fat: 7,  protein: 4,  gi: "fast", labeled: false, desc: "Sweet milky tea, four biscuits" },
+    { id: "bar",      name: "Protein bar",               carbs: 24, fat: 8,  protein: 15, gi: "med",  labeled: true,  desc: "Label: 24 g" },
+    { id: "chips",    name: "Bag of chips",              carbs: 30, fat: 10, protein: 4,  gi: "med",  labeled: true,  desc: "Label: 30 g" },
+    { id: "nuts",     name: "Handful of almonds",        carbs: 6,  fat: 14, protein: 6,  gi: "slow", labeled: false, desc: "Barely moves glucose" },
+    { id: "cookie",   name: "Office cookies, two",       carbs: 36, fat: 12, protein: 4,  gi: "fast", labeled: false, desc: "They were just sitting there" },
+    { id: "nosnack",  name: "Skip it",                   carbs: 0,  fat: 0,  protein: 0,  gi: "med",  labeled: true,  desc: "Not hungry" },
   ],
   treat: [
-    { id: "juice",    name: "Juice box",                 carbs: 18, gi: "fast", labeled: true,  desc: "Classic low treatment" },
-    { id: "tabs",     name: "Glucose tabs, four",        carbs: 16, gi: "fast", labeled: true,  desc: "Made for exactly this" },
-    { id: "candy",    name: "Gummy candies",             carbs: 25, gi: "fast", labeled: true,  desc: "Easy to overdo while shaky" },
+    { id: "juice",    name: "Juice box",                 carbs: 18, fat: 0, protein: 0, gi: "fast", labeled: true,  desc: "Classic low treatment" },
+    { id: "tabs",     name: "Glucose tabs, four",        carbs: 16, fat: 0, protein: 0, gi: "fast", labeled: true,  desc: "Made for exactly this" },
+    { id: "candy",    name: "Gummy candies",             carbs: 25, fat: 0, protein: 0, gi: "fast", labeled: true,  desc: "Easy to overdo while shaky" },
   ],
 };
 

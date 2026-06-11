@@ -3,7 +3,7 @@
 // alarms, scoring, save/load, HUD.
 // ============================================================
 import { Sim, fmtBG, bgUnit } from "./engine.js";
-import { FOODS, PORTIONS, EXERCISES, FACTS, PROFESSIONS, symptomText } from "./data.js";
+import { FOODS, PORTIONS, EXERCISES, FACTS, PROFESSIONS, DIFFICULTIES, symptomText } from "./data.js";
 import { avatarSVG, renderScene } from "./avatar.js";
 import { drawMini, drawTrends } from "./graph.js";
 import { BodyView } from "./body.js";
@@ -37,6 +37,7 @@ export class Game {
     this.c = character;
     this.mmol = !!character.mmol;
     this.totalDays = character.days || 7;
+    this.diff = DIFFICULTIES.find(d => d.id === character.difficulty) || DIFFICULTIES[1];
     this.sim = new Sim({ isf: 45, icr: 10, target: 110 });
     this.speed = 4;
     this.fast = false;
@@ -125,11 +126,11 @@ export class Game {
       add(1340, () => this.bedtimeEvent());
     }
 
-    if (this.c.therapy === "pump" && Math.random() < (weekend ? 0.15 : 0.3)) {
+    if (this.c.therapy === "pump" && Math.random() < (weekend ? 0.15 : 0.3) * this.diff.adverse) {
       const failAt = 600 + Math.floor(Math.random() * 500);
       add(failAt, () => this.startSiteFail());
     }
-    if (this.c.therapy === "pens" && Math.random() < 0.18) {
+    if (this.c.therapy === "pens" && Math.random() < 0.18 * this.diff.adverse) {
       add(460, () => this.missedBasalEvent());
     }
 
@@ -259,6 +260,13 @@ export class Game {
       this.view = b.dataset.view;
       document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + this.view));
       if (this.view === "trends") { drawTrends($("trend-canvas"), this.sim, this.mmol); this.renderTrendStats(); }
+      if (this.view === "body" && !localStorage.getItem("lir-body-intro")) {
+        $("body-intro").classList.remove("hidden");
+        $("body-intro-ok").onclick = () => {
+          $("body-intro").classList.add("hidden");
+          try { localStorage.setItem("lir-body-intro", "1"); } catch (e) {}
+        };
+      }
     });
     $("cgm-pill").onclick = () => document.querySelector('.vtab[data-view="trends"]').click();
     $("btn-pause").onclick = () => { this.paused = !this.paused; $("btn-pause").classList.toggle("on", this.paused); };
@@ -340,8 +348,12 @@ export class Game {
     for (const f of foods) {
       const card = document.createElement("button");
       card.className = "food-card";
-      card.innerHTML = `${icon(f.id, "ficon")}<span class="fname">${f.name}</span>
-        <span class="carbtag ${f.labeled ? "" : "unknown"}">${f.labeled ? f.carbs + " g carbs" : "? g carbs"}</span>
+      const known = f.labeled || this.diff.revealCarbs || this.diff.macros;
+      const tag = this.diff.macros
+        ? `${f.carbs}g C · ${f.fat || 0}g F · ${f.protein || 0}g P`
+        : known ? `${f.carbs} g carbs` : "? g carbs";
+      card.innerHTML = `${icon(f.icon || f.id, "ficon")}<span class="fname">${f.name}</span>
+        <span class="carbtag ${known ? "" : "unknown"}">${tag}</span>
         <span class="fmeta">${f.desc}</span>`;
       card.onclick = () => { m.close(); this.portionStep(f, category); };
       grid.appendChild(card);
@@ -353,8 +365,8 @@ export class Game {
   portionStep(food, category) {
     if (food.carbs === 0) { this.toast("You skip it."); return; }
     let portion = PORTIONS[1];
-    let guess = food.labeled ? food.carbs : Math.round(food.carbs * 0.7 / 5) * 5;
-    const isGuess = !food.labeled;
+    const isGuess = !food.labeled && !this.diff.revealCarbs && !this.diff.macros;
+    let guess = isGuess ? Math.round(food.carbs * 0.7 / 5) * 5 : food.carbs;
     const m = this.modal(`
       <h3>${food.name}</h3>
       <p class="sub">${food.desc}</p>
@@ -382,7 +394,10 @@ export class Game {
       } else {
         const total = Math.round(food.carbs * portion.mult);
         guess = total;
-        ga.innerHTML = `<p class="sub" style="margin:12px 0 2px">Label: <b style="color:var(--glucose)">${total} g carbs</b> for this portion.</p>`;
+        const extra = this.diff.macros
+          ? ` · ${Math.round((food.fat || 0) * portion.mult)} g fat · ${Math.round((food.protein || 0) * portion.mult)} g protein`
+          : "";
+        ga.innerHTML = `<p class="sub" style="margin:12px 0 2px">${food.labeled ? "Label" : "Nutrition"}: <b style="color:var(--glucose)">${total} g carbs</b>${extra} — this portion.</p>`;
       }
     };
     refresh();
@@ -396,21 +411,28 @@ export class Game {
 
   bolusModal(carbGuess, meal, title) {
     const s = this.sim;
+    const assist = this.diff.assist;
     const suggested = s.suggestBolus(carbGuess);
-    let units = suggested;
+    let units = assist === "full" ? suggested : 0;
     let prebolus = false;
     const cgm = s.cgmNow();
     const corr = Math.max(0, (cgm - s.s.target) / s.s.isf);
+    const mathHTML =
+      assist === "full" ? `
+          ${meal ? `Food &nbsp;·&nbsp; ${carbGuess} g ÷ ${s.s.icr} = <b>${(carbGuess / s.s.icr).toFixed(1)}u</b><br/>` : ""}
+          Correction &nbsp;·&nbsp; (${fmtBG(cgm, this.mmol)} − ${fmtBG(s.s.target, this.mmol)}) ÷ ${this.mmol ? (s.s.isf / 18).toFixed(1) : s.s.isf} = <b>${corr.toFixed(1)}u</b><br/>
+          Already working &nbsp;·&nbsp; <b>−${s.iob().toFixed(1)}u</b><br/>
+          Suggested &nbsp;·&nbsp; <b class="sug">${suggested.toFixed(1)}u</b> — you decide.`
+      : assist === "ratios" ? `
+          Your settings &nbsp;·&nbsp; 1u per <b>${s.s.icr} g</b> carbs &nbsp;·&nbsp; 1u lowers ~<b>${fmtBG(s.s.isf, this.mmol)}</b><br/>
+          CGM <b>${fmtBG(cgm, this.mmol)}</b> · target ${fmtBG(s.s.target, this.mmol)} · IOB <b>${s.iob().toFixed(1)}u</b><br/>
+          No suggestions at this level — the arithmetic is yours.`
+      : `You are the pancreas. No suggestions, no formulas — your call.`;
     const m = this.modal(`
       <h3>${title}</h3>
       <p class="sub">${meal ? `Covering <b>${carbGuess} g</b> of carbs${meal.guessed != null ? " — your estimate" : ""}.` : "Insulin to bring a high back down."}</p>
       <div class="dose-box">
-        <div class="math">
-          ${meal ? `Food &nbsp;·&nbsp; ${carbGuess} g ÷ ${s.s.icr} = <b>${(carbGuess / s.s.icr).toFixed(1)}u</b><br/>` : ""}
-          Correction &nbsp;·&nbsp; (${fmtBG(cgm, this.mmol)} − ${fmtBG(s.s.target, this.mmol)}) ÷ ${this.mmol ? (s.s.isf / 18).toFixed(1) : s.s.isf} = <b>${corr.toFixed(1)}u</b><br/>
-          Already working &nbsp;·&nbsp; <b>−${s.iob().toFixed(1)}u</b><br/>
-          Suggested &nbsp;·&nbsp; <b class="sug">${suggested.toFixed(1)}u</b> — you decide.
-        </div>
+        <div class="math">${mathHTML}</div>
         <div class="stepper">
           <button data-x="minus">−</button>
           <div class="units"><span id="uval">${units.toFixed(1)}</span><small> units</small></div>
@@ -553,7 +575,7 @@ export class Game {
   }
 
   maybeStressEvent() {
-    if (Math.random() < 0.55) {
+    if (Math.random() < 0.55 * this.diff.stress) {
       this.sim.addStress(0.65);
       const flavors = {
         engineer: "Production incident. The dashboard is red and everyone's in the war room.",

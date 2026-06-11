@@ -120,6 +120,24 @@ export class BodyView {
     this.ins.parts.forEach(p => { p.t = 0.93 + Math.random() * 0.06; p.speed *= 1.25; });
     this.dummy = new THREE.Object3D();
 
+    // ---- transfer streams: make cause and effect visible ----
+    // stomach → vessel while digesting; vessel → muscle/fat during uptake
+    const mkStream = (from, to, color, n = 7) => {
+      const mesh = new THREE.InstancedMesh(
+        new THREE.SphereGeometry(0.045, 8, 8),
+        new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.8, roughness: 0.4 }),
+        n
+      );
+      mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      this.scene.add(mesh);
+      return { mesh, from: from.clone(), to: to.clone(), n, phase: 0 };
+    };
+    this.streams = {
+      digest: mkStream(this.stomach.position, this.curve.getPointAt(0.105), 0xd49a55, 8),
+      muscle: mkStream(this.curve.getPointAt(0.645), this.muscle.position, 0xd49a55, 6),
+      fat: mkStream(this.curve.getPointAt(0.815), this.fat.position, 0xd49a55, 5),
+    };
+
     // ---- labels ----
     this.labels = [
       { mesh: this.stomach, name: "Stomach", sub: "" },
@@ -206,8 +224,14 @@ export class BodyView {
     const targetI = Math.min(MAX_I, Math.round(insRate * 220 + (sim.basalOn ? 7 : 0)));
     this.updateParticles(this.ins, targetI, dt, 1.0);
 
+    // transfer streams
+    const uptake = insRate > 0.012;
+    this.updateStream(this.streams.digest, carbRate > 0.02, dt);
+    this.updateStream(this.streams.muscle, uptake && bg > 70, dt);
+    this.updateStream(this.streams.fat, uptake && bg < 150, dt);
+
     this.renderer.render(this.scene, this.camera);
-    this.placeLabels(sim);
+    this.placeLabels(sim, carbRate, insRate);
     this.updateCaption(sim, carbRate, insRate);
   }
 
@@ -229,7 +253,24 @@ export class BodyView {
     mesh.instanceMatrix.needsUpdate = true;
   }
 
-  placeLabels(sim) {
+  updateStream(st, active, dt) {
+    st.mesh.count = active ? st.n : 0;
+    if (!active) { st.mesh.instanceMatrix.needsUpdate = true; return; }
+    st.phase = (st.phase + dt * 0.55) % 1;
+    for (let i = 0; i < st.n; i++) {
+      const f = (st.phase + i / st.n) % 1;
+      this.dummy.position.lerpVectors(st.from, st.to, f);
+      this.dummy.position.x += Math.sin(f * 9 + i) * 0.05;
+      const s = 0.6 + Math.sin(f * Math.PI) * 0.5; // swell mid-flight
+      this.dummy.scale.setScalar(s);
+      this.dummy.updateMatrix();
+      st.mesh.setMatrixAt(i, this.dummy.matrix);
+    }
+    this.dummy.scale.setScalar(1);
+    st.mesh.instanceMatrix.needsUpdate = true;
+  }
+
+  placeLabels(sim, carbRate = 0, insRate = 0) {
     const w = this.canvas.clientWidth, h = this.canvas.clientHeight;
     const v = new THREE.Vector3();
     for (const l of this.labels) {
@@ -242,10 +283,15 @@ export class BodyView {
       l.el.style.left = x + "px";
       l.el.style.top = y + "px";
       let sub = l.sub;
+      const uptake = insRate > 0.012;
       if (l.name === "Insulin in") {
         sub = sim.basalOn ? (sim.iob() > 0.2 ? `${sim.iob().toFixed(1)}u active` : "basal only") : "no flow";
         l.el.classList.toggle("warn", !sim.basalOn);
       }
+      if (l.name === "Stomach") sub = carbRate > 0.02 ? "digesting → glucose in" : "";
+      if (l.name === "Muscle") sub = uptake && sim.bg > 70 ? "absorbing glucose" : "";
+      if (l.name === "Fat") sub = uptake && sim.bg < 150 ? "storing surplus" : "";
+      if (l.name === "Liver") sub = sim.basalOn ? "" : "releasing glucose";
       l.el.innerHTML = l.name + (sub ? `<small>${sub}</small>` : "");
     }
   }

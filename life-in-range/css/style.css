@@ -402,6 +402,31 @@ b { font-weight: 600; }
 }
 #body-labels .blabel small { display: block; text-align: center; font-size: 9px; font-weight: 500; letter-spacing: 0.04em; text-transform: none; color: var(--text-3); }
 #body-labels .blabel.warn { color: var(--low); }
+.body-legend {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 16px;
+  font-size: 10.5px; font-weight: 550; color: var(--text-2);
+  pointer-events: none;
+}
+.body-legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
+.body-legend .dot.glu { background: var(--glucose); }
+.body-legend .dot.ins { background: var(--insulin); }
+.body-legend .drag-hint { color: var(--text-3); font-weight: 450; font-style: italic; }
+.body-intro {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(330px, calc(100% - 32px));
+  background: rgba(18, 19, 22, 0.97);
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  padding: 20px;
+  z-index: 5;
+}
+.body-intro h4 { margin: 0 0 10px; font-size: 15px; font-weight: 650; letter-spacing: -0.01em; }
+.body-intro p { margin: 0 0 10px; font-size: 12.5px; line-height: 1.6; color: var(--text-2); }
+.body-intro b { color: var(--text); }
+.body-intro b.glu { color: var(--glucose); }
+.body-intro b.ins { color: var(--insulin); }
+.body-intro .btn { width: 100%; margin-top: 4px; }
 .body-caption {
   position: absolute; left: 16px; right: 16px; bottom: max(12px, env(safe-area-inset-bottom));
   font-size: 12.5px; line-height: 1.55; font-weight: 450;

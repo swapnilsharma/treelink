@@ -1,7 +1,7 @@
 // ============================================================
 // Life in Range — screens: title, character, summaries, ending
 // ============================================================
-import { SKIN_TONES, HAIR_COLORS, HAIR_STYLES, PROFESSIONS, THERAPIES, DEFAULT_CHARACTERS, FACTS, ABOUT_HTML } from "./data.js";
+import { SKIN_TONES, HAIR_COLORS, HAIR_STYLES, PROFESSIONS, THERAPIES, DEFAULT_CHARACTERS, DIFFICULTIES, FACTS, ABOUT_HTML } from "./data.js";
 import { avatarSVG } from "./avatar.js";
 import { startTitleBG } from "./graph.js";
 import { fmtBG, bgUnit } from "./engine.js";
@@ -29,7 +29,7 @@ if (saved && saved.c) {
 }
 
 // ---------- character ----------
-const character = { name: "Maya", age: 34, profession: "engineer", skin: 2, hairColor: 0, hairStyle: 2, therapy: "pump", mmol: false, days: 7, diagnosedAge: 19 };
+const character = { name: "Maya", age: 34, profession: "engineer", skin: 2, hairColor: 0, hairStyle: 2, therapy: "pump", mmol: false, days: 7, diagnosedAge: 19, difficulty: "medium" };
 let defaultIdx = 0;
 
 function chipRow(el, items, getLabel, isSel, onPick) {
@@ -59,6 +59,9 @@ function refreshCreate() {
   chipRow($("opt-skin"), SKIN_TONES, t => t, (t, i) => i === character.skin, (t, i) => character.skin = i);
   chipRow($("opt-hair"), HAIR_STYLES, (h, i) => h, (h, i) => i === character.hairStyle, (h, i) => character.hairStyle = i);
   chipRow($("opt-therapy"), THERAPIES, t => t.label, t => t.id === character.therapy, t => character.therapy = t.id);
+  const diff = DIFFICULTIES.find(d => d.id === character.difficulty) || DIFFICULTIES[1];
+  $("diff-note").textContent = `${diff.name} — ${diff.note}`;
+  chipRow($("opt-diff"), DIFFICULTIES, d => d.label, d => d.id === character.difficulty, d => character.difficulty = d.id);
   chipRow($("opt-units"), [false, true], m => m ? "mmol/L" : "mg/dL", m => m === character.mmol, m => character.mmol = m);
   chipRow($("opt-days"), [3, 5, 7], d => d + " days", d => d === character.days, d => character.days = d);
 }
@@ -161,7 +164,7 @@ function showEnd(g) {
     : "A rough week, and an honest one. Highs, lows, alarms: this is what the condition feels like before routines click.";
 
   $("end-panel").innerHTML = `
-    <p class="eyebrow">WEEK COMPLETE</p>
+    <p class="eyebrow">WEEK COMPLETE · ${(DIFFICULTIES.find(d => d.id === g.c.difficulty) || DIFFICULTIES[1]).name.toUpperCase()}</p>
     <h2>The week is over — for you</h2>
     <p class="muted">${g.c.name} wakes up on day ${g.totalDays + 1} and does it all again. There's no finish line in type 1. There is a scoreboard:</p>
     <div class="hba1c-dial">

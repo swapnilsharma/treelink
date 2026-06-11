@@ -74,6 +74,11 @@
             <div id="opt-therapy" class="chip-row"></div>
             <p id="therapy-note" class="hint"></p>
           </div>
+          <div class="field">
+            <span>Difficulty</span>
+            <div id="opt-diff" class="chip-row"></div>
+            <p id="diff-note" class="hint"></p>
+          </div>
           <div class="field"><span>Units</span><div id="opt-units" class="chip-row"></div></div>
           <div class="field"><span>Length</span><div id="opt-days" class="chip-row"></div></div>
         </div>
@@ -139,7 +144,19 @@
         <div class="body-wrap">
           <canvas id="body-canvas"></canvas>
           <div id="body-labels"></div>
+          <div id="body-legend" class="body-legend">
+            <span><i class="dot glu"></i>Glucose</span>
+            <span><i class="dot ins"></i>Insulin</span>
+            <span class="drag-hint">drag to rotate</span>
+          </div>
           <div id="body-caption" class="body-caption"></div>
+          <div id="body-intro" class="body-intro hidden">
+            <h4>Your bloodstream, as a loop</h4>
+            <p><b class="glu">Orange dots are glucose.</b> More dots = higher blood sugar. That's the number on your CGM.</p>
+            <p><b class="ins">Blue dots are insulin</b>, entering at the ring — where your pump or pen delivers it.</p>
+            <p>While you digest, the <b>stomach</b> streams glucose in. Insulin lets <b>muscle</b> and <b>fat</b> pull it back out. The <b>pancreas stays dark</b> — in type&nbsp;1, it can't help.</p>
+            <button class="btn btn-primary" id="body-intro-ok">Got it</button>
+          </div>
         </div>
       </div>
 
