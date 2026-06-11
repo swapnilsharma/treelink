@@ -183,8 +183,9 @@ b { font-weight: 600; }
   border-bottom: 1px solid var(--line);
   background: radial-gradient(70% 90% at 35% 30%, rgba(255,255,255,0.045), transparent 70%);
 }
-.avatar-stage { height: clamp(170px, 30dvh, 280px); }
-.avatar-stage svg { height: 100%; width: auto; display: block; filter: drop-shadow(0 14px 18px rgba(0,0,0,0.5)); }
+.avatar-stage { height: clamp(180px, 30dvh, 290px); width: clamp(140px, 38vw, 230px); cursor: grab; }
+.avatar-stage:active { cursor: grabbing; }
+.avatar-stage canvas { width: 100%; height: 100%; display: block; }
 .hero-side { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; max-width: 220px; }
 .hero-side .eyebrow { margin: 0; }
 .hero-side .btn { padding: 8px 14px; font-size: 13px; }
@@ -226,7 +227,7 @@ b { font-weight: 600; }
     gap: 20px;
   }
   .hero-side { align-items: center; text-align: center; }
-  .avatar-stage { height: clamp(220px, 46dvh, 380px); }
+  .avatar-stage { height: clamp(240px, 48dvh, 400px); width: 270px; }
   .create-scroll { padding: 24px 28px; }
   .create-footer { padding: 14px 28px; }
 }
@@ -357,14 +358,11 @@ b { font-weight: 600; }
 .scene-art { position: absolute; inset: 0; }
 .scene-art svg { width: 100%; height: 100%; display: block; }
 .scene-avatar {
-  position: absolute; bottom: 0; left: 14%;
-  height: 52%;
-  filter: drop-shadow(0 18px 22px rgba(0,0,0,0.55));
-  transition: transform 0.5s ease;
+  position: absolute; bottom: -1%; left: 5%;
+  width: clamp(180px, 40vw, 280px);
+  height: 66%;
 }
-.scene-avatar svg { height: 100%; width: auto; display: block; }
-.scene-avatar.walking { animation: walkbob 0.7s ease-in-out infinite; }
-@keyframes walkbob { 50% { transform: translateY(-4px); } }
+.scene-avatar canvas { width: 100%; height: 100%; display: block; }
 
 .symptom-overlay { position: absolute; inset: 0; pointer-events: none; transition: opacity 0.8s ease; opacity: 0; }
 .symptom-overlay.hypo {

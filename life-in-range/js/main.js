@@ -1,8 +1,8 @@
 // ============================================================
 // Life in Range — screens: title, character, summaries, ending
 // ============================================================
-import { SKIN_TONES, HAIR_COLORS, HAIR_STYLES, PROFESSIONS, THERAPIES, DEFAULT_CHARACTERS, DIFFICULTIES, FACTS, ABOUT_HTML } from "./data.js";
-import { avatarSVG } from "./avatar.js";
+import { SKIN_TONES, HAIR_COLORS, HAIR_STYLES, BODY_TYPES, TOPS, BOTTOMS, SHOES, EXTRAS, TOP_COLORS, BOTTOM_COLORS, PROFESSIONS, THERAPIES, DEFAULT_CHARACTERS, DIFFICULTIES, FACTS, ABOUT_HTML } from "./data.js";
+import { CharacterView } from "./charview.js";
 import { startTitleBG } from "./graph.js";
 import { fmtBG, bgUnit } from "./engine.js";
 import { Game } from "./game.js";
@@ -29,8 +29,15 @@ if (saved && saved.c) {
 }
 
 // ---------- character ----------
-const character = { name: "Maya", age: 34, profession: "engineer", skin: 2, hairColor: 0, hairStyle: 2, therapy: "pump", mmol: false, days: 7, diagnosedAge: 19, difficulty: "medium" };
+const character = {
+  name: "Maya", age: 34, profession: "engineer",
+  skin: 2, hairColor: 0, hairStyle: 2, body: 1,
+  top: 2, topColor: 0, bottom: 0, bottomColor: 0, shoes: 0,
+  glasses: true, watch: true, cap: false, bag: false,
+  therapy: "pump", mmol: false, days: 7, diagnosedAge: 19, difficulty: "medium",
+};
 let defaultIdx = 0;
+let createView = null;
 
 function chipRow(el, items, getLabel, isSel, onPick) {
   el.innerHTML = "";
@@ -46,7 +53,11 @@ function chipRow(el, items, getLabel, isSel, onPick) {
 }
 
 function refreshCreate() {
-  $("create-avatar").innerHTML = avatarSVG(character);
+  if (!createView) {
+    createView = new CharacterView($("create-avatar"), { orbit: true, sway: true, fit: 1.0 });
+    createView.startLoop();
+  }
+  createView.setConfig(character);
   $("inp-name").value = character.name;
   $("inp-age").value = character.age;
   $("age-val").textContent = character.age;
@@ -56,8 +67,17 @@ function refreshCreate() {
     T1D since age ${character.diagnosedAge} · ${character.therapy === "pump" ? "pump + CGM" : "pens + CGM"}`;
   $("therapy-note").textContent = th.note;
   chipRow($("opt-profession"), PROFESSIONS, p => p.label, p => p.id === character.profession, p => character.profession = p.id);
+  chipRow($("opt-body"), BODY_TYPES, b => b, (b, i) => i === character.body, (b, i) => character.body = i);
   chipRow($("opt-skin"), SKIN_TONES, t => t, (t, i) => i === character.skin, (t, i) => character.skin = i);
   chipRow($("opt-hair"), HAIR_STYLES, (h, i) => h, (h, i) => i === character.hairStyle, (h, i) => character.hairStyle = i);
+  chipRow($("opt-haircolor"), HAIR_COLORS, c => c, (c, i) => i === character.hairColor, (c, i) => character.hairColor = i);
+  chipRow($("opt-top"), TOPS, t => t, (t, i) => i === character.top, (t, i) => character.top = i);
+  chipRow($("opt-topcolor"), TOP_COLORS, c => c, (c, i) => i === character.topColor, (c, i) => character.topColor = i);
+  chipRow($("opt-bottom"), BOTTOMS, b => b, (b, i) => i === character.bottom, (b, i) => character.bottom = i);
+  chipRow($("opt-bottomcolor"), BOTTOM_COLORS, c => c, (c, i) => i === character.bottomColor, (c, i) => character.bottomColor = i);
+  chipRow($("opt-shoes"), SHOES, sh => sh, (sh, i) => i === character.shoes, (sh, i) => character.shoes = i);
+  const extraKeys = ["glasses", "watch", "cap", "bag"];
+  chipRow($("opt-extras"), EXTRAS, e => e, (e, i) => !!character[extraKeys[i]], (e, i) => character[extraKeys[i]] = !character[extraKeys[i]]);
   chipRow($("opt-therapy"), THERAPIES, t => t.label, t => t.id === character.therapy, t => character.therapy = t.id);
   const diff = DIFFICULTIES.find(d => d.id === character.difficulty) || DIFFICULTIES[1];
   $("diff-note").textContent = `${diff.name} — ${diff.note}`;
@@ -80,14 +100,6 @@ function initCreate() {
   };
   refreshCreate();
 }
-
-// cycle hair color by re-clicking the selected style
-$("opt-hair").addEventListener("click", e => {
-  if (e.target.classList.contains("sel")) {
-    character.hairColor = (character.hairColor + 1) % HAIR_COLORS.length;
-    refreshCreate();
-  }
-});
 
 // ---------- lifecycle ----------
 function startGame(c, restore = null) {

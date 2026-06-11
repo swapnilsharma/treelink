@@ -15,8 +15,24 @@ no backend. Progress saves locally at the start of each in-game day.
 Clinical and quiet. Near-black surfaces, hairline borders, Inter with tabular numerals.
 Color is never decoration — it only encodes glucose state (low / in range / high), insulin
 and carbohydrates, exactly like medical software. All iconography is a custom monochrome
-SVG stroke set; scenes are atmospheric vector environments; the player character is a
-proportioned figure illustration, not a cartoon.
+SVG stroke set; scenes are atmospheric vector environments.
+
+## Character system (`js/character3d.js`)
+
+Soft clay-style 3D, built procedurally in Three.js: one base body and one animation
+set shared by every character, assembled from interchangeable parts —
+
+- 4 body types (lean / average / athletic / heavy), 5 skin tones
+- 8 hair styles (short, medium, long, curly, coily, bun, ponytail, bald) × 5 colors
+- 6 tops (t-shirt → jacket) × 8 muted colors, 4 bottoms, 3 shoes
+- accessories: glasses, watch, cap, crossbody bag
+- diabetes hardware as attachable modules: CGM sensor on the arm, insulin pump
+  with tubing at the waist (pump therapy only)
+
+Expressions run through eyebrows, eyes and posture: a low slumps the shoulders and
+worries the brows; a high reads as weary. Idle is calm breathing with blinks; walking
+is a restrained procedural gait. Warm-neutral palette throughout — the character is
+a normal adult living a normal life, never "a patient". Drag to orbit in the creator.
 
 ## The three views
 

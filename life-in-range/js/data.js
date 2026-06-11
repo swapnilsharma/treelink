@@ -2,9 +2,21 @@
 // Life in Range — static game data
 // ============================================================
 
-export const SKIN_TONES = ["#f0cfae", "#dfb086", "#c08453", "#8d5a3b", "#5d3a26"];
-export const HAIR_COLORS = ["#23262e", "#473122", "#7d5326", "#a8a39b", "#5e2c42"];
-export const HAIR_STYLES = ["Short", "Curly", "Long", "Bun", "Buzz"];
+// ------------------------------------------------------------
+// CHARACTER SYSTEM — one base body, interchangeable parts.
+// Palette: warm neutrals, muted blues/greens, soft oranges,
+// earth browns. Nothing neon.
+// ------------------------------------------------------------
+export const SKIN_TONES = ["#f3d6bd", "#e6b48e", "#c08453", "#8d5a3b", "#5d3a26"];
+export const HAIR_COLORS = ["#2a2421", "#4a3526", "#7a5230", "#a8a39b", "#8a4b32"];
+export const HAIR_STYLES = ["Short", "Medium", "Long", "Curly", "Coily", "Bun", "Ponytail", "Bald"];
+export const BODY_TYPES = ["Lean", "Average", "Athletic", "Heavy"];
+export const TOPS = ["T-shirt", "Shirt", "Sweater", "Hoodie", "Cardigan", "Jacket"];
+export const BOTTOMS = ["Jeans", "Chinos", "Shorts", "Skirt"];
+export const SHOES = ["Sneakers", "Casual", "Boots"];
+export const EXTRAS = ["Glasses", "Watch", "Cap", "Bag"];
+export const TOP_COLORS = ["#bd6b3d", "#e3d9c8", "#3d4a5c", "#7d8c6f", "#c29a4a", "#3a3a3c", "#6f8aa3", "#9c4f3c"];
+export const BOTTOM_COLORS = ["#46586b", "#b09a78", "#3b3b3d", "#6b6b50"];
 
 export const PROFESSIONS = [
   { id: "engineer", label: "Software engineer", workplace: "a busy tech office", desk: "standups and code reviews" },
@@ -28,11 +40,11 @@ export const THERAPIES = [
 ];
 
 export const DEFAULT_CHARACTERS = [
-  { name: "Maya",   age: 34, profession: "engineer",  skin: 2, hairColor: 0, hairStyle: 2, therapy: "pump", diagnosedAge: 19 },
-  { name: "Dev",    age: 41, profession: "architect", skin: 3, hairColor: 0, hairStyle: 0, therapy: "pens", diagnosedAge: 27 },
-  { name: "Sofia",  age: 28, profession: "nurse",     skin: 1, hairColor: 2, hairStyle: 1, therapy: "pump", diagnosedAge: 9  },
-  { name: "Marcus", age: 52, profession: "chef",      skin: 4, hairColor: 3, hairStyle: 4, therapy: "pens", diagnosedAge: 44 },
-  { name: "Elena",  age: 23, profession: "teacher",   skin: 0, hairColor: 4, hairStyle: 3, therapy: "pump", diagnosedAge: 12 },
+  { name: "Maya",   age: 34, profession: "engineer",  skin: 2, hairColor: 0, hairStyle: 2, body: 1, top: 2, topColor: 0, bottom: 0, bottomColor: 0, shoes: 0, glasses: true,  watch: true,  cap: false, bag: false, therapy: "pump", diagnosedAge: 19 },
+  { name: "Dev",    age: 41, profession: "architect", skin: 3, hairColor: 0, hairStyle: 0, body: 2, top: 1, topColor: 2, bottom: 1, bottomColor: 1, shoes: 1, glasses: true,  watch: true,  cap: false, bag: false, therapy: "pens", diagnosedAge: 27 },
+  { name: "Sofia",  age: 28, profession: "nurse",     skin: 1, hairColor: 2, hairStyle: 6, body: 0, top: 0, topColor: 3, bottom: 0, bottomColor: 2, shoes: 0, glasses: false, watch: true,  cap: false, bag: false, therapy: "pump", diagnosedAge: 9  },
+  { name: "Marcus", age: 52, profession: "chef",      skin: 4, hairColor: 3, hairStyle: 7, body: 3, top: 5, topColor: 5, bottom: 1, bottomColor: 3, shoes: 2, glasses: false, watch: false, cap: true,  bag: false, therapy: "pens", diagnosedAge: 44 },
+  { name: "Elena",  age: 23, profession: "teacher",   skin: 0, hairColor: 4, hairStyle: 5, body: 1, top: 4, topColor: 4, bottom: 3, bottomColor: 2, shoes: 1, glasses: false, watch: true,  cap: false, bag: true,  therapy: "pump", diagnosedAge: 12 },
 ];
 
 // ------------------------------------------------------------

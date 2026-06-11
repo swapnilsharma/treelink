@@ -4,7 +4,8 @@
 // ============================================================
 import { Sim, fmtBG, bgUnit } from "./engine.js";
 import { FOODS, PORTIONS, EXERCISES, FACTS, PROFESSIONS, DIFFICULTIES, symptomText } from "./data.js";
-import { avatarSVG, renderScene } from "./avatar.js";
+import { renderScene } from "./avatar.js";
+import { CharacterView } from "./charview.js";
 import { drawMini, drawTrends } from "./graph.js";
 import { BodyView } from "./body.js";
 import { icon } from "./icons.js";
@@ -243,6 +244,7 @@ export class Game {
     const mood = s.bg < 70 ? "low" : s.bg > 250 ? "high" : "ok";
     if (mood !== this._mood) {
       this._mood = mood;
+      this.charView.setState({ mood });
       const chip = $("symptom-chip");
       const sym = symptomText(s.bg);
       chip.classList.toggle("hidden", !sym);
@@ -251,6 +253,7 @@ export class Game {
     }
 
     drawMini($("cgm-mini"), s);
+    if (this.view === "world") this.charView.draw();
     if (this.view === "body") this.bodyView.draw(s, this.mmol);
     if (this.view === "trends" && performance.now() - this._trendTick > 700) {
       this._trendTick = performance.now();
@@ -306,7 +309,8 @@ export class Game {
     $("btn-speed").onclick = () => { this.fast = !this.fast; $("btn-speed").classList.toggle("on", this.fast); };
     $("btn-menu").onclick = () => this.menuModal();
     this.renderActionBar();
-    $("scene-avatar").innerHTML = avatarSVG(this.c);
+    this.charView = new CharacterView($("scene-avatar"), { yaw: 0.35, sway: false, fit: 1.05 });
+    this.charView.setConfig(this.c);
   }
 
   renderActionBar() {
@@ -334,7 +338,8 @@ export class Game {
     this.scene = id;
     const label = renderScene($("scene-art"), id);
     $("scene-location").textContent = label;
-    $("scene-avatar").classList.toggle("walking", walking);
+    if (this.charView) this.charView.setState({ walking });
+    $("scene-avatar").classList.toggle("hidden", id === "night");
     this.caption("");
   }
   caption(txt) { $("scene-caption").textContent = txt; }
