@@ -138,6 +138,8 @@ export const FACTS = [
   "Pre-bolusing — insulin 15–20 minutes before eating — gives it a head start and flattens the spike.",
   "Exercise lowers glucose during activity and raises insulin sensitivity for up to 24 hours. Overnight lows after a gym day are common.",
   "Stress hormones raise blood glucose. A hard meeting can spike you as surely as a snack.",
+  "Insulin-to-carb ratios are personal: 1 unit might cover 6 g for one person and 15 g for another — and the same person's ratio drifts through the day.",
+  "Insulin sensitivity is a moving target: lower in the morning, higher after exercise and late at night. Yesterday's perfect dose can be wrong today.",
   "The dawn phenomenon: early-morning hormones push glucose up before you even wake.",
   "A CGM reads the fluid under the skin, not blood — it runs 5–10 minutes behind, which matters when things move fast.",
   "Insulin beyond what food requires stores the surplus as fat. Chronic over-dosing builds weight.",

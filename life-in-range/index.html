@@ -43,48 +43,45 @@
 
   <!-- ============ CHARACTER ============ -->
   <section id="screen-create" class="screen">
-    <div class="panel scroll-panel create-panel">
-      <p class="eyebrow">PROFILE</p>
-      <h2>Your week. Their life.</h2>
-      <p class="muted">You'll play an adult professional who manages type&nbsp;1 diabetes alongside everything else.</p>
-
-      <div class="create-layout">
-        <div class="avatar-preview">
-          <div id="create-avatar" class="avatar-box"></div>
+    <div class="create-shell">
+      <div class="create-hero">
+        <div id="create-avatar" class="avatar-stage"></div>
+        <div class="hero-side">
+          <p class="eyebrow">PROFILE</p>
           <div id="create-summary" class="avatar-summary"></div>
-          <button id="btn-default-char" class="btn btn-quiet wide">Generate a character</button>
-        </div>
-
-        <div class="create-form">
-          <label class="field">
-            <span>Name</span>
-            <input id="inp-name" type="text" maxlength="18" placeholder="Name" autocomplete="off"/>
-          </label>
-
-          <label class="field">
-            <span>Age <b id="age-val">34</b></span>
-            <input id="inp-age" type="range" min="21" max="64" value="34"/>
-          </label>
-
-          <div class="field"><span>Profession</span><div id="opt-profession" class="chip-row"></div></div>
-          <div class="field"><span>Skin</span><div id="opt-skin" class="chip-row swatches"></div></div>
-          <div class="field"><span>Hair</span><div id="opt-hair" class="chip-row"></div></div>
-          <div class="field">
-            <span>Insulin therapy</span>
-            <div id="opt-therapy" class="chip-row"></div>
-            <p id="therapy-note" class="hint"></p>
-          </div>
-          <div class="field">
-            <span>Difficulty</span>
-            <div id="opt-diff" class="chip-row"></div>
-            <p id="diff-note" class="hint"></p>
-          </div>
-          <div class="field"><span>Units</span><div id="opt-units" class="chip-row"></div></div>
-          <div class="field"><span>Length</span><div id="opt-days" class="chip-row"></div></div>
+          <button id="btn-default-char" class="btn btn-quiet">↻ Generate</button>
         </div>
       </div>
 
-      <div class="row-end">
+      <div class="create-scroll">
+        <label class="field">
+          <span>Name</span>
+          <input id="inp-name" type="text" maxlength="18" placeholder="Name" autocomplete="off"/>
+        </label>
+
+        <label class="field">
+          <span>Age <b id="age-val">34</b></span>
+          <input id="inp-age" type="range" min="21" max="64" value="34"/>
+        </label>
+
+        <div class="field"><span>Profession</span><div id="opt-profession" class="chip-row"></div></div>
+        <div class="field"><span>Skin</span><div id="opt-skin" class="chip-row swatches"></div></div>
+        <div class="field"><span>Hair</span><div id="opt-hair" class="chip-row"></div></div>
+        <div class="field">
+          <span>Insulin therapy</span>
+          <div id="opt-therapy" class="chip-row"></div>
+          <p id="therapy-note" class="hint"></p>
+        </div>
+        <div class="field">
+          <span>Difficulty</span>
+          <div id="opt-diff" class="chip-row"></div>
+          <p id="diff-note" class="hint"></p>
+        </div>
+        <div class="field"><span>Units</span><div id="opt-units" class="chip-row"></div></div>
+        <div class="field"><span>Length</span><div id="opt-days" class="chip-row"></div></div>
+      </div>
+
+      <div class="create-footer">
         <button class="btn btn-quiet" data-nav="title">Back</button>
         <button id="btn-begin" class="btn btn-primary btn-big">Start Monday</button>
       </div>

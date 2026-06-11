@@ -38,7 +38,13 @@ export class Game {
     this.mmol = !!character.mmol;
     this.totalDays = character.days || 7;
     this.diff = DIFFICULTIES.find(d => d.id === character.difficulty) || DIFFICULTIES[1];
-    this.sim = new Sim({ isf: 45, icr: 10, target: 110 });
+    // Personal insulin needs: derive carb ratio and correction factor
+    // from a randomized total daily dose (the clinical 500/1800 rules).
+    // 1u might cover 7 g for this character and 14 g for the next.
+    if (!character.tdd) character.tdd = 36 + Math.floor(Math.random() * 35);
+    const icr = Math.max(6, Math.round(500 / character.tdd));
+    const isf = Math.max(25, Math.round(1800 / character.tdd / 5) * 5);
+    this.sim = new Sim({ isf, icr, target: 110 });
     this.speed = 4;
     this.fast = false;
     this.paused = false;
@@ -67,6 +73,29 @@ export class Game {
     this._bindUI();
     this.setScene(this.scene);
     this.toast(`CGM on your arm, ${this.c.therapy === "pump" ? "pump clipped on" : "pens in your bag"}. The week starts now.`, "good", 6000, "MONDAY · 07:00");
+    if (!opts.restore) this.settingsIntro();
+  }
+
+  // first-morning card: this character's personal numbers
+  settingsIntro() {
+    const s = this.sim.s;
+    const body = this.diff.assist === "none"
+      ? `<p class="sub">Somewhere there's a letter from your endocrinologist with your ratios. You never read it.</p>
+         <p class="sub">Adults range from <b>1u : 6 g</b> to <b>1u : 15 g</b> of carbs — and ${this.c.name}'s number is in there somewhere.
+         Find it the only way left: dose, watch the graph, adjust. Start cautious.</p>`
+      : `<p class="sub">Everyone's insulin needs are different — these were tuned with your endocrinologist, and they're <b>yours</b>:</p>
+         <div class="dose-box"><div class="math">
+           Carb ratio &nbsp;·&nbsp; 1u covers <b>${s.icr} g</b> of carbs<br/>
+           Correction &nbsp;·&nbsp; 1u lowers ~<b>${fmtBG(s.isf, this.mmol)} ${bgUnit(this.mmol)}</b><br/>
+           Target &nbsp;·&nbsp; <b>${fmtBG(s.target, this.mmol)}</b>
+         </div></div>
+         <p class="sub" style="margin-top:12px">They're starting points, not physics: your body is more resistant in the morning,
+         more sensitive after exercise and late at night. The same dose lands differently at 8 a.m. and 8 p.m.</p>`;
+    const m = this.modal(`
+      <h3>${this.c.name}'s numbers</h3>
+      ${body}
+      <div class="modal-actions"><button class="btn btn-primary" data-x="ok">Start the day</button></div>`);
+    m.el.querySelector('[data-x="ok"]').onclick = () => m.close();
   }
 
   // ============ persistence ============
@@ -243,13 +272,17 @@ export class Game {
 
   renderTrendStats() {
     const s = this.sim, tir = s.tir();
+    const sens = s.sensitivityInfo();
+    const sensPct = Math.round(sens.total * 100);
+    const why = sens.exercise > 1.05 ? "post-exercise" : sens.stress < 0.95 ? "stress" : sens.circadian < 0.95 ? "morning hormones" : sens.circadian > 1.05 ? "evening rhythm" : sens.sleep < 1 ? "broken sleep" : "baseline";
     $("trend-stats").innerHTML = `
       <div class="tile"><div class="k">IN RANGE</div><div class="v" style="color:var(--range)">${tir.inRange.toFixed(0)}%</div></div>
       <div class="tile"><div class="k">AVERAGE</div><div class="v">${fmtBG(s.meanBG(), this.mmol)}<small> ${bgUnit(this.mmol)}</small></div></div>
       <div class="tile"><div class="k">EST. HbA1c</div><div class="v">${s.gmi().toFixed(1)}%</div></div>
       <div class="tile"><div class="k">LOWS</div><div class="v" style="color:var(--low)">${s.lowEpisodes}</div></div>
       <div class="tile"><div class="k">INSULIN OB</div><div class="v" style="color:var(--insulin)">${s.iob().toFixed(1)}u</div></div>
-      <div class="tile"><div class="k">CARBS OB</div><div class="v" style="color:var(--glucose)">${s.cob().toFixed(0)}g</div></div>`;
+      <div class="tile"><div class="k">CARBS OB</div><div class="v" style="color:var(--glucose)">${s.cob().toFixed(0)}g</div></div>
+      <div class="tile"><div class="k">INSULIN SENSITIVITY</div><div class="v" style="color:${sensPct < 95 ? "var(--high)" : sensPct > 105 ? "var(--insulin)" : "var(--text)"}">${sensPct}%<small> · ${why}</small></div></div>`;
   }
 
   // ============ UI helpers ============
@@ -417,16 +450,22 @@ export class Game {
     let prebolus = false;
     const cgm = s.cgmNow();
     const corr = Math.max(0, (cgm - s.s.target) / s.s.isf);
+    const sensPct = Math.round(s.sensitivity() * 100);
+    const sensLine = sensPct < 94
+      ? `<br/>Body right now &nbsp;·&nbsp; <b style="color:var(--high)">${sensPct}% sensitivity</b> — doses act weaker than your settings assume.`
+      : sensPct > 106
+      ? `<br/>Body right now &nbsp;·&nbsp; <b style="color:var(--insulin)">${sensPct}% sensitivity</b> — doses hit harder than your settings assume.`
+      : "";
     const mathHTML =
       assist === "full" ? `
           ${meal ? `Food &nbsp;·&nbsp; ${carbGuess} g ÷ ${s.s.icr} = <b>${(carbGuess / s.s.icr).toFixed(1)}u</b><br/>` : ""}
           Correction &nbsp;·&nbsp; (${fmtBG(cgm, this.mmol)} − ${fmtBG(s.s.target, this.mmol)}) ÷ ${this.mmol ? (s.s.isf / 18).toFixed(1) : s.s.isf} = <b>${corr.toFixed(1)}u</b><br/>
           Already working &nbsp;·&nbsp; <b>−${s.iob().toFixed(1)}u</b><br/>
-          Suggested &nbsp;·&nbsp; <b class="sug">${suggested.toFixed(1)}u</b> — you decide.`
+          Suggested &nbsp;·&nbsp; <b class="sug">${suggested.toFixed(1)}u</b> — you decide.${sensLine}`
       : assist === "ratios" ? `
           Your settings &nbsp;·&nbsp; 1u per <b>${s.s.icr} g</b> carbs &nbsp;·&nbsp; 1u lowers ~<b>${fmtBG(s.s.isf, this.mmol)}</b><br/>
           CGM <b>${fmtBG(cgm, this.mmol)}</b> · target ${fmtBG(s.s.target, this.mmol)} · IOB <b>${s.iob().toFixed(1)}u</b><br/>
-          No suggestions at this level — the arithmetic is yours.`
+          No suggestions at this level — the arithmetic is yours.${sensLine}`
       : `You are the pancreas. No suggestions, no formulas — your call.`;
     const m = this.modal(`
       <h3>${title}</h3>
@@ -683,6 +722,7 @@ export class Game {
     if (this.modalOpen || this.sim.t < (this._alarmCd || 0)) return;
     this._alarmCd = this.sim.t + 45;
     this.nightWakes++;
+    this._wokeTonight = true;
     this.energy = Math.max(0, this.energy - 10);
     beep(high ? 540 : 1040, 0.22, 4); buzz([400, 150, 400]);
     const s = this.sim;
@@ -713,6 +753,9 @@ export class Game {
     this.dayIdx++;
     const s = this.sim;
     this.energy = Math.min(100, this.energy + 42);
+    // a broken night blunts insulin sensitivity the next day
+    s.sleepFactor = this._wokeTonight ? 0.92 : 1;
+    this._wokeTonight = false;
     this.dayStats.push({
       minutesTotal: s.minutesTotal, minutesLow: s.minutesLow, minutesHigh: s.minutesHigh,
       bgSum: s.bgSum, lowEpisodes: s.lowEpisodes,
@@ -731,6 +774,11 @@ export class Game {
   resumeAfterSummary() {
     this.setScene("kitchen");
     this.caption("Dawn hormones have been at work since 4 a.m. Check the number first.");
+    if (this.dayIdx === 1) {
+      this.toast("Mornings run insulin-resistant — hormones blunt every unit. The same breakfast dose does less now than it would tonight.", "fact", 9000, "SENSITIVITY");
+    } else if (this.sim.sleepFactor < 1) {
+      this.toast("Last night's broken sleep lowered today's insulin sensitivity. Expect doses to act a little weaker.", "fact", 8000, "SENSITIVITY");
+    }
   }
 
   menuModal() {

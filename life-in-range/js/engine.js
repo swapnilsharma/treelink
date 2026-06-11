@@ -53,6 +53,8 @@ export class Sim {
     this.sensUntil = 0; this.sensMult = 1;   // post-exercise sensitivity
     this.stress = 0;                 // 0..1, decays
     this.fatStore = 0;               // grams of "extra" stored fat (teaching stat)
+    this.sleepFactor = 1;            // <1 after a broken night
+    this.dailySens = 1; this._sensDay = -1; // day-to-day drift
     this.drift = 0;                  // slow random walk
     this.history = [];               // per-5-min {t, bg} CGM trace
     this.cgmLag = [];                // ring buffer for sensor lag
@@ -130,10 +132,24 @@ export class Sim {
     return { carbRate, insRate }; // g/min, u/min
   }
 
-  sensitivity() {
-    let m = this.t < this.sensUntil ? this.sensMult : 1;
-    return m;
+  // ------------------------------------------------------------
+  // Insulin sensitivity — the same unit does different work at
+  // different times. Composite of:
+  //   circadian rhythm (resistant mornings, sensitive nights)
+  //   post-exercise boost · stress resistance · sleep quality
+  //   slow day-to-day drift
+  // ------------------------------------------------------------
+  sensitivityInfo() {
+    const day = Math.floor(this.t / 1440);
+    if (day !== this._sensDay) { this._sensDay = day; this.dailySens = 0.93 + Math.random() * 0.14; }
+    const h = this.hourOfDay();
+    const circadian = 1 - 0.13 * Math.cos(((h - 7.5) / 24) * 2 * Math.PI); // min ~07:30, max ~19:30
+    const exercise = this.t < this.sensUntil ? this.sensMult : 1;
+    const stress = 1 - 0.18 * this.stress;
+    const total = circadian * exercise * stress * this.dailySens * this.sleepFactor;
+    return { total, circadian, exercise, stress, daily: this.dailySens, sleep: this.sleepFactor };
   }
+  sensitivity() { return this.sensitivityInfo().total; }
 
   hourOfDay() { return (this.t % 1440) / 60; }
 
